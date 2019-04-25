@@ -1,6 +1,7 @@
 from sklearn.metrics.pairwise import pairwise_distances
 from tensorflow.python.platform import gfile
 from scipy import misc
+from os.path import basename, dirname
 import tensorflow as tf
 import numpy as np
 import detect_and_align
@@ -48,14 +49,14 @@ class IdData():
                       " you can solve it by increasing the thresolds of the cascade network")
             aligned_images = aligned_images + face_patches
             id_image_paths += [image_path] * len(face_patches)
-            self.id_names += [image_path.split('/')[-2]] * len(face_patches)
+            self.id_names += [basename(dirname(image_path))] * len(face_patches)
 
         return np.stack(aligned_images), id_image_paths
 
     def print_distance_table(self, id_image_paths):
         """Prints distances between id embeddings"""
         distance_matrix = pairwise_distances(self.embeddings, self.embeddings)
-        image_names = [path.split('/')[-1] for path in id_image_paths]
+        image_names = [basename(path) for path in id_image_paths]
         print('Distance matrix:\n{:20}'.format(''), end='')
         [print('{:20}'.format(name), end='') for name in image_names]
         for path, distance_row in zip(image_names, distance_matrix):
